@@ -5,13 +5,20 @@ const {db, Page, User} = require('./models')
 const app = express()
 const PORT = 1337
 
-app.use(express.static('./public'))
-
-express.urlencoded({extended: false})
+app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 
-app.get('/', (req,res)=>{
-    res.send('HELLO WORKING')
+app.use(express.static('./public'))
+
+// app.get('/', (req,res)=>{
+//     res.send('HELLO WORKING')
+// })
+
+app.use('/wiki', require('./routes/wiki'))
+app.use('/user', require('./routes/users'))
+
+app.use('/',(req,res,next)=>{
+    res.redirect('/wiki')
 })
 
 db.authenticate().then(() =>{
@@ -21,6 +28,7 @@ db.authenticate().then(() =>{
 const init = async () =>{
     await Page.sync()
     await User.sync()
+    await db.sync()
 
     
     app.listen(PORT, ()=>{
